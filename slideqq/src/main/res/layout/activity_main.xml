@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.itcast.slideqq.view.weidget.SlideMenu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/silde_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg"
+    tools:context="com.itcast.slideqq.view.activity.MainActivity">
+
+    <include
+        layout="@layout/view_leftmenu">
+    </include>
+
+    <include layout="@layout/view_main">
+    </include>
+</com.itcast.slideqq.view.weidget.SlideMenu>
