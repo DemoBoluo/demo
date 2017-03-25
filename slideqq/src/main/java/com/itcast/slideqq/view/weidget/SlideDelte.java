@@ -20,6 +20,9 @@ public class SlideDelte extends ViewGroup {
     private int mItemRightMeasuredWidth;
     private int mItemRightMeasuredHeight;
     private ViewDragHelper mViewDragHelper;
+    private int mStartX;
+    private int mstartY;
+
 
     public SlideDelte(Context context) {
         this(context, null);
@@ -41,25 +44,21 @@ public class SlideDelte extends ViewGroup {
 
     private void init() {
         mViewDragHelper = ViewDragHelper.create(this, new ViewDragHelper.Callback() {
-
             @Override
             public boolean tryCaptureView(View child, int pointerId) {
                 return pointerId == 0;
             }
-
             @Override
             public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
                 super.onViewPositionChanged(changedView, left, top, dx, dy);
                 if (changedView == itemMain) {
                     int rightLeft = itemRight.getLeft() + dx;
-                    itemRight.layout(rightLeft, 0, rightLeft+mItemRightMeasuredWidth, mItemMainMeasuredHeight);
+                    itemRight.layout(rightLeft, 0, rightLeft + mItemRightMeasuredWidth, mItemMainMeasuredHeight);
                 } else if (changedView == itemRight) {
                     int mainLeft = itemMain.getLeft() + dx;
                     itemMain.layout(mainLeft, 0, mItemMainMeasuredWidth + mainLeft, mItemMainMeasuredHeight);
                 }
-
             }
-
             @Override
             public void onViewReleased(View releasedChild, float xvel, float yvel) {
                 super.onViewReleased(releasedChild, xvel, yvel);
@@ -80,14 +79,14 @@ public class SlideDelte extends ViewGroup {
                 if (itemMain == child) {
                     if (left < -mItemRightMeasuredWidth) {
                         left = -mItemRightMeasuredWidth;
-                    } else if (left >0) {
+                    } else if (left > 0) {
                         left = 0;
                     }
                 } else if (itemRight == child) {
                     if (left < (mItemMainMeasuredWidth - mItemRightMeasuredWidth)) {
                         left = mItemMainMeasuredWidth - mItemRightMeasuredWidth;
                     } else if (left >= mItemMainMeasuredWidth) {
-                        left =  mItemMainMeasuredWidth;
+                        left = mItemMainMeasuredWidth;
                     }
                 }
                 return left;
@@ -96,12 +95,13 @@ public class SlideDelte extends ViewGroup {
     }
 
     private void itemMainClose() {
-       mViewDragHelper.smoothSlideViewTo(itemMain,0,0);
+        mViewDragHelper.smoothSlideViewTo(itemMain, 0, 0);
         postInvalidateOnAnimation();
     }
 
     private void itemMainOpen() {
-      mViewDragHelper.smoothSlideViewTo(itemMain,-mItemRightMeasuredWidth,0);
+        SlideDeleteManager.getInatance().setSlideDelte(this);
+        mViewDragHelper.smoothSlideViewTo(itemMain, -mItemRightMeasuredWidth, 0);
         postInvalidateOnAnimation();
     }
 
@@ -112,17 +112,34 @@ public class SlideDelte extends ViewGroup {
             postInvalidateOnAnimation();
         }
     }
-
-    @Override
     public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mStartX = (int) event.getX();
+                mstartY = (int)event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                int moveX = (int) event.getX();
+                int moveY=(int)event.getY();
+                if ((mStartX-moveX)!=0 ){
+                    requestDisallowInterceptTouchEvent(true);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
         mViewDragHelper.processTouchEvent(event);
         return true;
     }
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (itemMain.getLeft()<0){
-            //MainView move to left,request deal touchevent
+        if (itemMain.getLeft() < 0) {
+            requestDisallowInterceptTouchEvent(true);
+        }
+        SlideDelte slideDelte = SlideDeleteManager.getInatance().getSlideDelte();
+        if ((ev.getAction()==MotionEvent.ACTION_DOWN )&& slideDelte != null){
+            slideDelte.itemMainClose();
+            SlideDeleteManager.getInatance().setSlideDelte(null);
             requestDisallowInterceptTouchEvent(true);
         }
         return mViewDragHelper.shouldInterceptTouchEvent(ev);
@@ -142,7 +159,33 @@ public class SlideDelte extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        itemMain.layout(0,0,mItemMainMeasuredWidth,mItemMainMeasuredHeight);
-        itemRight.layout(mItemMainMeasuredWidth,0,mItemMainMeasuredWidth+mItemRightMeasuredWidth,mItemRightMeasuredHeight);
+        itemMain.layout(0, 0, mItemMainMeasuredWidth, mItemMainMeasuredHeight);
+        itemRight.layout(mItemMainMeasuredWidth, 0, mItemMainMeasuredWidth + mItemRightMeasuredWidth, mItemRightMeasuredHeight);
+    }
+
+    public static class SlideDeleteManager {
+        private static SlideDeleteManager mSlideDeleteManager;
+        private SlideDelte mSlideDelete;
+
+        private SlideDeleteManager() {
+        }
+
+        public static synchronized SlideDeleteManager getInatance() {
+            if (mSlideDeleteManager == null) {
+                synchronized (SlideDeleteManager.class) {
+                    mSlideDeleteManager = new SlideDeleteManager();
+                }
+            }
+            return mSlideDeleteManager;
+        }
+
+        public SlideDelte getSlideDelte() {
+            return mSlideDelete;
+        }
+
+        public void setSlideDelte(SlideDelte mSlideDelte) {
+            this.mSlideDelete = mSlideDelte;
+        }
     }
 }
+

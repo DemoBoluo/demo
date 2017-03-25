@@ -11,10 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.CycleInterpolator;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.itcast.slideqq.R;
 import com.itcast.slideqq.adapter.MainAdaper;
@@ -22,6 +24,7 @@ import com.itcast.slideqq.mode.Cheeses;
 import com.itcast.slideqq.present.ipresenter.MainActivityPresent;
 import com.itcast.slideqq.present.presentimp.MainActivityPresentImp;
 import com.itcast.slideqq.view.iview.MainActivityView;
+import com.itcast.slideqq.view.weidget.SlideDelte;
 import com.itcast.slideqq.view.weidget.SlideMenu;
 
 import java.util.List;
@@ -59,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         mMenuIv = (ImageView) findViewById(R.id.menu_iv);
         mMainLv = (ListView) findViewById(R.id.main_lv);
         mMenuLv = (ListView) findViewById(R.id.menu_lv);
-        mSildeMain = (SlideMenu)findViewById(R.id.silde_main);
+        mSildeMain = (SlideMenu) findViewById(R.id.silde_main);
         mMainActivityPresentImp.initData();
         mSildeMain.setOnChangingListener(new SlideMenu.OnChangingListener() {
             @Override
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
                 if (percent == 0) {
                     ObjectAnimator.ofFloat(mMainIv, "alpha", 1).setDuration(20).start();
                     ObjectAnimator.ofFloat(mMenuIv, "alpha", 1).setDuration(20).start();
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(mMainIv, "translationX",0,20);
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(mMainIv, "translationX", 0, 20);
                     animator.setInterpolator(new CycleInterpolator(3));
                     animator.setDuration(500);
                     animator.start();
@@ -83,6 +86,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             @Override
             public void onClick(View v) {
                 mSildeMain.openLeftMenu();
+            }
+        });
+        mMainLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                Toast.makeText(MainActivity.this, "被点了" + position, Toast.LENGTH_SHORT).show();
             }
         });
     }

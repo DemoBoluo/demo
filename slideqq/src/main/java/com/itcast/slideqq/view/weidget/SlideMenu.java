@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 
 /**
  * Created by dell on 2017/3/22.
@@ -33,6 +34,7 @@ public class SlideMenu extends FrameLayout {
     private ViewDragHelper mViewDragHelper;
     private float mMaxRange;
     private int mStartX;
+    private int mStartY;
 
     public SlideMenu(@NonNull Context context) {
         this(context, null);
@@ -70,9 +72,9 @@ public class SlideMenu extends FrameLayout {
             @Override
             public int clampViewPositionHorizontal(View child, int left, int dx) {
                 if (child == mMainView) {
-                    if (left<0){
-                        left =  0;
-                    }else if (left>= mMaxRange){
+                    if (left < 0) {
+                        left = 0;
+                    } else if (left >= mMaxRange) {
                         left = (int) mMaxRange;
                     }
                 }
@@ -88,24 +90,24 @@ public class SlideMenu extends FrameLayout {
              */
             @Override
             public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
-               if (changedView == mMainView){
-                   int newLeft = mMainView.getLeft() + dx;
-                   if (newLeft>=mMaxRange){
-                       newLeft = (int) mMaxRange;
-                   }else if (newLeft<=0){
-                       newLeft =0;
-                   }
-                   mMainView.layout(newLeft,0, newLeft+mMMainViewMeasuredWidth,mMMainViewMeasuredHeight);
-               }
-                mLeftMenu.layout(0,0,mMLeftMenuMeasuredWidth,mLeftMenuMeasuredHeight);
-               //添加动画
+                if (changedView == mMainView) {
+                    int newLeft = mMainView.getLeft() + dx;
+                    if (newLeft >= mMaxRange) {
+                        newLeft = (int) mMaxRange;
+                    } else if (newLeft <= 0) {
+                        newLeft = 0;
+                    }
+                    mMainView.layout(newLeft, 0, newLeft + mMMainViewMeasuredWidth, mMMainViewMeasuredHeight);
+                }
+                mLeftMenu.layout(0, 0, mMLeftMenuMeasuredWidth, mLeftMenuMeasuredHeight);
+                //添加动画
                 //计算移动的比率
                 float percent = (mMainView.getLeft() + 0.0f) / mMaxRange;
                 showAnimation(percent);
                 // TODO: 2017/3/22
                 //接口回调
-                if (mOnChangingListener != null){
-                  mOnChangingListener.getPrecent(percent);
+                if (mOnChangingListener != null) {
+                    mOnChangingListener.getPrecent(percent);
                 }
 
             }
@@ -113,18 +115,19 @@ public class SlideMenu extends FrameLayout {
             @Override
             public void onViewReleased(View releasedChild, float xvel, float yvel) {
                 super.onViewReleased(releasedChild, xvel, yvel);
-                if (releasedChild == mMainView){
-                    if (mMainView.getLeft()>=mMaxRange/2){
+                if (releasedChild == mMainView) {
+                    if (mMainView.getLeft() >= mMaxRange / 2) {
                         openLeftMenu();
-                    }else if(mMainView.getLeft()<mMaxRange/2){
+                    } else if (mMainView.getLeft() < mMaxRange / 2) {
                         closeLeftMenu();
-                    }else if (xvel>1000){
+                    } else if (xvel > 1000) {
                         openLeftMenu();
-                    }else if (xvel<=1000){
+                    } else if (xvel <= 1000) {
                         closeLeftMenu();
                     }
                 }
             }
+
             @Override
             public int getViewHorizontalDragRange(View child) {
                 return (int) mMaxRange;
@@ -135,13 +138,13 @@ public class SlideMenu extends FrameLayout {
     }
 
     public void closeLeftMenu() {
-        mViewDragHelper.smoothSlideViewTo(mMainView,0,0);
+        mViewDragHelper.smoothSlideViewTo(mMainView, 0, 0);
         //动画
         postInvalidateOnAnimation();
     }
 
     public void openLeftMenu() {
-        mViewDragHelper.smoothSlideViewTo(mMainView,(int) mMaxRange,0);
+        mViewDragHelper.smoothSlideViewTo(mMainView, (int) mMaxRange, 0);
         //动画
         postInvalidateOnAnimation();
     }
@@ -149,7 +152,7 @@ public class SlideMenu extends FrameLayout {
     @Override
     public void computeScroll() {
         super.computeScroll();
-        if (mViewDragHelper.continueSettling(true)){
+        if (mViewDragHelper.continueSettling(true)) {
             postInvalidateOnAnimation();
         }
     }
@@ -185,7 +188,7 @@ public class SlideMenu extends FrameLayout {
         mMLeftMenuMeasuredWidth = mLeftMenu.getMeasuredWidth();
         mMMainViewMeasuredHeight = mMainView.getMeasuredHeight();
         mMMainViewMeasuredWidth = mMainView.getMeasuredWidth();
-        mMaxRange = mMMainViewMeasuredWidth*0.65f;
+        mMaxRange = mMMainViewMeasuredWidth * 0.65f;
     }
 
     @Override
@@ -197,18 +200,33 @@ public class SlideMenu extends FrameLayout {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         //完全打开MainView不让子条目移动
-        if (mMainView.getLeft() == mMaxRange){
+        if (mMainView.getLeft() == mMaxRange) {
             float x = ev.getX();
-            if (x>= mMaxRange){
+            if (x >= mMaxRange) {
                 return true;
+            }
+        } else if (mMainView.getLeft() == 0) {
+            //左移要求父控件不拦截事件
+            switch (ev.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    mStartX = (int) ev.getX();
+                    mStartY = (int) ev.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    int moveX = (int) ev.getX();
+                    int moveY = (int) ev.getY();
+                    if (moveX < mStartX) {
+                            return false;
+                    }
             }
         }
         return mViewDragHelper.shouldInterceptTouchEvent(ev);
     }
 
-    public interface OnChangingListener{
+    public interface OnChangingListener {
         void getPrecent(float percent);
     }
+
     private OnChangingListener mOnChangingListener;
 
     public void setOnChangingListener(OnChangingListener onChangingListener) {

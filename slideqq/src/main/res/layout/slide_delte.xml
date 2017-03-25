@@ -2,7 +2,7 @@
 <com.itcast.slideqq.view.weidget.SlideDelte
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="45dp"
+    android:layout_height="50dp"
     >
 
     <LinearLayout
@@ -30,31 +30,31 @@
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_top"
-            android:text="置顶"
-            android:background="#9c9c9c"
-            android:textSize="18sp"
-            android:textColor="#ffffff"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
             android:layout_width="50dp"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="#9c9c9c"
+            android:gravity="center"
+            android:text="置顶"
+            android:textColor="#ffffff"
+            android:textSize="18sp"/>
 
         <TextView
             android:id="@+id/tv_delete"
-            android:background="#ff0000"
-            android:text="删除"
-            android:textSize="18sp"
-            android:textColor="#ffffff"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
             android:layout_width="50dp"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="#ff0000"
+            android:gravity="center"
+            android:text="删除"
+            android:textColor="#ffffff"
+            android:textSize="18sp"/>
 
     </LinearLayout>
 </com.itcast.slideqq.view.weidget.SlideDelte>

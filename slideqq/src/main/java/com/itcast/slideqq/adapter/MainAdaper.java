@@ -1,13 +1,16 @@
 package com.itcast.slideqq.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.itcast.slideqq.R;
+import com.itcast.slideqq.view.weidget.SlideDelte;
 
 import java.util.List;
 
@@ -17,6 +20,7 @@ import java.util.List;
 
 public class MainAdaper extends BaseAdapter {
     private List<String> mData;
+    private Context mContext;
 
     public MainAdaper(List<String> data) {
         this.mData = data;
@@ -38,10 +42,11 @@ public class MainAdaper extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         MainHolder holder = null;
         if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.slide_delte, parent, false);
+            mContext = parent.getContext();
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.slide_delte, parent, false);
             holder = new MainHolder();
             holder.tv = (TextView) convertView.findViewById(R.id.main_item_name);
             holder.iv = (ImageView) convertView.findViewById(R.id.main_item_iv);
@@ -63,6 +68,13 @@ public class MainAdaper extends BaseAdapter {
                 holder.iv.setImageResource(R.mipmap.head_3);
                 break;
         }
+        holder.tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: 2017/3/23 RecyclerView可以解决
+                Toast.makeText(mContext,"被点了"+mData.get(position) , Toast.LENGTH_SHORT).show();
+            }
+        });
         return convertView;
     }
 
